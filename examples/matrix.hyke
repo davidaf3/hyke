@@ -1,0 +1,5 @@
+main :: Nat
+main = (f 1 !! 1) !! 1
+
+f :: Nat -> [[Nat]]
+f n = [[n, n + 1], [n + 2, n + 3]]

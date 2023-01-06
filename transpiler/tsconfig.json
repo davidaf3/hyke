@@ -1,0 +1,7 @@
+{
+  "extends": "@tsconfig/node16/tsconfig.json",
+  "include": ["src/**/*", "index.ts"],
+  "compilerOptions": {
+    "outDir": "dist",
+  }
+}

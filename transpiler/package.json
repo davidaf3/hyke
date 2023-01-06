@@ -1,0 +1,16 @@
+{
+  "name": "hyke",
+  "version": "1.0.0",
+  "main": "./dist/index.js",
+  "bin": "./dist/index.js",
+  "scripts": {
+    "build": "tsc && python -c \"from distutils.dir_util import copy_tree;copy_tree('./resources', './dist/resources')\""
+  },
+  "devDependencies": {
+    "@tsconfig/node16": "^1.0.3",
+    "@types/node": "^18.11.9"
+  },
+  "dependencies": {
+    "typescript": "^4.8.4"
+  }
+}

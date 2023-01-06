@@ -1,0 +1,17 @@
+main :: ([Nat], [Nat])
+main = machine [[[1, 1, 1], [1, 1, 0]], [[0, 0, 2], [1, 1, 1]], [[], [0, 0, 3]]] [3] (false, 0, [], [1, 1, 1, 0, 1, 1])
+
+machine :: [[[Nat]]] -> [Nat] -> (Bool, Nat, [Nat], [Nat]) -> ([Nat], [Nat])
+machine program final (True, s, prev, curnext) = (prev, curnext)
+machine program final (halt, s, [], curnext) = machine program final (halt, s, [0], curnext)
+machine program final (halt, s, prev, current:[]) = machine program final (halt, s, prev, current:[0])
+machine program final (halt, s, prev, current:next) = machine program final (transition final ((program!!s)!!current) (prev, current:next))
+
+transition :: [Nat] -> [Nat] -> ([Nat], [Nat]) -> (Bool, Nat, [Nat], [Nat])
+transition final [sym, 0, state] (prevh:prevt, current:next) = (elem state final, state, prevt, prevh:(sym:next))
+transition final [sym, 1, state] (prev, current:next) = (elem state final, state, sym:prev, next)
+
+elem :: Nat -> [Nat] -> Bool
+elem e [] = False
+elem e (e:t) = True
+elem e (h:t) = elem e t

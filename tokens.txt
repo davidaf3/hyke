@@ -1,0 +1,16 @@
+NATLIT      = [0-9]+
+BINOP       = (+ | : | - | * | < | <= | == | !!)
+BOOLLIT     = (True | False)
+SYMBOL      = [a-zA-Z][a-zA-Z0-9]*
+EOL         = (\r | \n)+
+
+QUADDOTS    = ::
+LPAR        = (
+RPAR        = )
+EQ          = =
+ARROW       = ->
+LBRACKET    = [
+RBRACKET    = ]
+COMMA       = ,
+
+EOF

@@ -1,0 +1,30 @@
+program     ::= statement EOF | statement EOL program
+statement   ::= funcdef | funcbody
+
+funcdef     ::= SYMBOL "::" functypes
+
+functypes   ::= type | functype "->" functypes
+functype    ::= type | type "=" expr
+
+type        ::= "[" type "]" | "(" type ")" | SYMBOL typeparams | tupletype
+tupletype   ::= "(" type "," ")" | "(" type "," tupletypes ")"
+tupletypes  ::= type | type "," tupletypes
+typeparams  ::= typeparam typeparams | λ
+typeparam   ::= SYMBOL | "[" type "]" | "(" type ")"
+
+funcbody    ::= SYMBOL params "=" expr
+
+params      ::= param params | λ
+param       ::= SYMBOL | pattern
+pattern     ::= literal | "(" expr ")"
+
+expr        ::= literal | SYMBOL | funccall | "(" expr ")" | expr BINOP expr
+
+funccall    ::= SYMBOL args
+args        ::= arg | arg args
+arg         ::= literal | SYMBOL | "(" expr ")"
+
+literal     ::= NATLIT | listlit | BOOLLIT | tuplelit
+listlit     ::= "[" listitems "]" | "[" "]"
+listitems   ::= expr | expr "," listitems
+tuplelit    ::= "(" expr "," ")" | "(" expr "," listitems ")"

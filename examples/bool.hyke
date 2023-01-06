@@ -1,0 +1,11 @@
+main :: Bool
+main = isfib 13 7
+
+isfib :: Nat -> Nat -> Bool
+isfib (fib n) n = True
+isfib fibres n = False
+
+fib :: Nat -> Nat
+fib 0 = 0
+fib 1 = 1
+fib n = fib (n - 1) + fib (n - 2)

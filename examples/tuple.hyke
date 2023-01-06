@@ -1,0 +1,6 @@
+main :: (Bool, Nat, [((Bool,), Nat, Nat)])
+main = f 1
+
+f :: Nat -> (Bool, Nat, [((Bool,), Nat, Nat)])
+f 1 = (true, 1, [((true,), 2, 1), ((true,), 3, 1)])
+f n = (false, n, [((false,), n + 1, n), ((false,), n + 2, n)])

@@ -81,7 +81,17 @@ function typeToString(
 
         array.push(res[0]);
         lastType = res[1];
-        arrayArgs = checker.getTypeArguments(arrayArgs[1]);
+        const next = arrayArgs[1];
+        arrayArgs = checker.getTypeArguments(next);
+        if (
+          !arrayArgs ||
+          (arrayArgs.length !== 2 && arrayArgs.length !== 0) ||
+          (arrayArgs.length === 2 && !isTypeReference(arrayArgs[1])) ||
+          (arrayArgs.length === 0 && isLiteralType(next))
+        ) {
+          isArray = false;
+          break;
+        }
       }
 
       if (isArray) return [`[${array.join(", ")}]`, `[${lastType}]`];

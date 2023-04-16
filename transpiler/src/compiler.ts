@@ -2,13 +2,13 @@ import { readFileSync, writeFileSync } from "fs";
 import { CodeGenVisitor } from "./codegen";
 import Lexer from "./lexer";
 import Parser from "./parser";
-import { IdenticationVisitor, TypeCheckingVisitor } from "./semantic";
+import { IdentificationVisitor, TypeCheckingVisitor } from "./semantic";
 
 export default function compile(fileName: string) {
   const source = readFileSync(fileName, { encoding: "utf-8" });
   const lexer = new Lexer(source);
   const parser = new Parser(lexer);
-  const identificationVisitor = new IdenticationVisitor();
+  const identificationVisitor = new IdentificationVisitor();
   const typeCheckingVisitor = new TypeCheckingVisitor();
   const codeGenVisitor = new CodeGenVisitor();
 

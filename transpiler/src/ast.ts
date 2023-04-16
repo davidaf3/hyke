@@ -138,6 +138,7 @@ export type Expr = NatLit | ListLit | BoolLit | FuncCall | BinOp | Symbol;
 
 export class Symbol extends ASTNode {
   public type: Type | null = null;
+  public scope: FuncDef | null = null;
   public insidePattern = false;
 
   constructor(public name: string, line: number, column: number) {
@@ -146,6 +147,10 @@ export class Symbol extends ASTNode {
 
   accept<P, R>(visitor: Visitor<P, R>, param: P): R {
     return visitor.visitSymbol(this, param);
+  }
+
+  getScopedName(): string {
+    return `${(this.scope?.name ?? 'global')}_${this.name}`;
   }
 }
 

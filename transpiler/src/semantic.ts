@@ -21,7 +21,7 @@ interface Context {
   funcDef: FuncDef | null;
 }
 
-export class IdenticationVisitor extends AbstractVisitor<Context, void> {
+export class IdentificationVisitor extends AbstractVisitor<Context, void> {
   private funcs: Map<string, FuncDef> = new Map();
 
   visitProgram(program: Program, ctx: Context): void {
@@ -103,7 +103,8 @@ export class IdenticationVisitor extends AbstractVisitor<Context, void> {
   }
 
   visitSymbol(symbol: Symbol, ctx: Context): void {
-    if (!ctx.funcDef || !ctx.funcDef.paramNames.includes(symbol.name))
+    symbol.scope = ctx.funcDef;
+    if (!symbol.scope || !symbol.scope.paramNames.includes(symbol.name))
       symbol.insidePattern = ctx.insidePattern;
   }
 }
@@ -265,9 +266,9 @@ export class TypeCheckingVisitor extends AbstractVisitor<Type | null, void> {
     if (!inferredType) throw new Error();
     symbol.type = inferredType;
 
-    const symbolType = this.symbolTypes.get(symbol.name);
+    const symbolType = this.symbolTypes.get(symbol.getScopedName());
     if (!symbolType) {
-      this.symbolTypes.set(symbol.name, inferredType);
+      this.symbolTypes.set(symbol.getScopedName(), inferredType);
       return;
     }
 

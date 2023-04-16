@@ -1,0 +1,37 @@
+main :: [(Nat, Nat)]
+main = solve 8
+
+solve :: Nat -> [(Nat, Nat)] = [] -> Nat = 0 -> [(Nat, Nat)]
+solve ymax queens ymax = queens
+solve ymax queens y = solvecandidates ymax queens y (candidates queens y ymax)
+
+solvecandidates :: Nat -> [(Nat, Nat)] -> Nat -> [(Nat, Nat)] -> [(Nat, Nat)] = [] -> [(Nat, Nat)]
+solvecandidates ymax queens y candidates (x:xs) = x:xs
+solvecandidates ymax queens y [] prev = []
+solvecandidates ymax queens y (candidate:rest) prev = solvecandidates ymax queens y rest (solve ymax (candidate:queens) (y + 1))
+
+candidates :: [(Nat, Nat)] -> Nat -> Nat -> Nat = 0 -> [(Nat, Nat)] = [] -> [(Nat, Nat)]
+candidates queens y xmax xmax temp = temp
+candidates queens y xmax x temp = candidates queens y xmax (x + 1) (addifnot (attacked (x, y) queens) (x, y) temp)
+
+attacked :: (Nat, Nat) -> [(Nat, Nat)] -> Bool = False -> Bool
+attacked queen [] False = False
+attacked queen others True = True
+attacked queen (other:rest) stop = attacked queen rest (attacks other queen)
+
+attacks :: (Nat, Nat) -> (Nat, Nat) -> Bool
+attacks (ax, ay) (bx, by) = or (or (ax == bx) (ay == by)) ((absdiff ax bx) == (absdiff ay by))
+
+addifnot :: Bool -> (Nat, Nat) -> [(Nat, Nat)] ->  [(Nat, Nat)]
+addifnot False queen queens = queen:queens
+addifnot True queen queens = queens
+
+or :: Bool -> Bool -> Bool
+or True b = True
+or a True = True
+or a b = False
+
+absdiff :: Nat -> Nat -> Nat
+absdiff a 0 = a
+absdiff 0 b = b
+absdiff a b = absdiff (a - 1) (b - 1)

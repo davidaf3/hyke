@@ -1,5 +1,5 @@
-main :: ([Nat], [Nat])
-main = machine [[[1, 1, 1], [1, 1, 0]], [[0, 0, 2], [1, 1, 1]], [[], [0, 0, 3]]] [3] (false, 0, [], [1, 1, 1, 0, 1, 1])
+main :: [Nat]
+main = join (machine [[[1, 1, 1], [1, 1, 0]], [[0, 0, 2], [1, 1, 1]], [[], [0, 0, 3]]] [3] (false, 0, [], [1, 1, 1, 0, 1, 1]))
 
 machine :: [[[Nat]]] -> [Nat] -> (Bool, Nat, [Nat], [Nat]) -> ([Nat], [Nat])
 machine program final (True, s, prev, curnext) = (prev, curnext)
@@ -15,3 +15,7 @@ elem :: Nat -> [Nat] -> Bool
 elem e [] = False
 elem e (e:t) = True
 elem e (h:t) = elem e t
+
+join :: ([Nat], [Nat]) -> [Nat]
+join ([], bs) = bs
+join ((a:as), bs) = join (as, (a:bs))

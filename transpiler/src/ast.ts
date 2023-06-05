@@ -24,6 +24,7 @@ export class Program extends ASTNode {
 export class FuncDef extends ASTNode {
   public body: FuncBody[] = [];
   public default: FuncBody | null = null;
+  public userDefinedParamNames = new Map<number, string>();
 
   constructor(
     public name: string,
@@ -150,7 +151,7 @@ export class Symbol extends ASTNode {
   }
 
   getScopedName(): string {
-    return `${(this.scope?.name ?? 'global')}_${this.name}`;
+    return `${this.scope?.name ?? "global"}_${this.name}`;
   }
 }
 

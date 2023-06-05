@@ -27,6 +27,32 @@ export class IdentificationVisitor extends AbstractVisitor<Context, void> {
   visitProgram(program: Program, ctx: Context): void {
     program.funcDefs.forEach((funcDef) => funcDef.accept(this, ctx));
     program.funcBodies.forEach((funcBody) => funcBody.accept(this, ctx));
+
+    program.funcDefs.forEach((funcDef) => {
+      funcDef.body.forEach((funcBody) => {
+        funcBody.repeatedSymbols.forEach((idxs, name) => {
+          const param = funcBody.params[idxs[0]];
+
+          if (!funcDef.paramNames.includes(name)) {
+            throw new NameError(
+              `Parameter ${name} not declared`,
+              param.line,
+              param.column
+            );
+          }
+
+          if (!idxs.includes(funcDef.paramNames.indexOf(name))) {
+            throw new NameError(
+              `Name ${name} doesn't match a parameter in positions ${idxs.join(
+                ", "
+              )}`,
+              param.line,
+              param.column
+            );
+          }
+        });
+      });
+    });
   }
 
   visitFuncDef(funcDef: FuncDef, ctx: Context): void {
@@ -55,8 +81,38 @@ export class IdentificationVisitor extends AbstractVisitor<Context, void> {
     });
 
     paramNames.forEach((idxs, name) => {
-      if (idxs.length === 1) funcDef.paramNames[idxs[0]] = name;
-      else funcBody.repeatedSymbols.set(name, idxs);
+      if (idxs.length > 1) {
+        funcBody.repeatedSymbols.set(name, idxs);
+        return;
+      }
+
+      const idx = idxs[0];
+      const param = funcBody.params[idx];
+
+      if (
+        funcDef.userDefinedParamNames.has(idx) &&
+        funcDef.userDefinedParamNames.get(idx) !== name
+      ) {
+        const current = funcDef.userDefinedParamNames.get(idx);
+        throw new NameError(
+          `Renaming of parameter ${current}`,
+          param.line,
+          param.column
+        );
+      }
+
+      funcDef.userDefinedParamNames.forEach((other, otherIdx) => {
+        if (other === name && otherIdx !== idx) {
+          throw new NameError(
+            `Parameter name ${name} already in use`,
+            param.line,
+            param.column
+          );
+        }
+      });
+
+      funcDef.userDefinedParamNames.set(idx, name);
+      funcDef.paramNames[idx] = name;
     });
 
     if (paramNames.size === funcDef.paramNames.length)

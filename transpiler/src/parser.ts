@@ -29,7 +29,7 @@ export default class Parser {
       if (nextTok.kind !== "EOL") {
         const nameTok = nextTok;
         nextTok = this.lexer.peek();
-        if (nextTok.kind === "QUADDOTS") funcDefs.push(this.funcDef(nameTok));
+        if (nextTok.kind === "QUADDOTS") funcDefs.push(this.funcSig(nameTok));
         else funcBodies.push(this.funcBody(nameTok));
       }
 
@@ -39,7 +39,7 @@ export default class Parser {
     return new Program(funcDefs, funcBodies, 0, 0);
   }
 
-  funcDef(nameTok: Token): FuncDef {
+  funcSig(nameTok: Token): FuncDef {
     const types: FuncType[] = [];
 
     let nextTok = this.lexer.nextToken();

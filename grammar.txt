@@ -1,7 +1,7 @@
 program     ::= statement EOF | statement EOL program
-statement   ::= funcdef | funcbody
+statement   ::= funcsig | funcbody
 
-funcdef     ::= SYMBOL "::" functypes
+funcsig     ::= SYMBOL "::" functypes
 
 functypes   ::= type | functype "->" functypes
 functype    ::= type | type "=" expr

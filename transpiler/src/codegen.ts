@@ -105,7 +105,7 @@ export class CodeGenVisitor extends AbstractVisitor<null, string> {
   }
 
   visitSymbol(symbol: Symbol): string {
-    if (symbol.insidePattern)
+    if (symbol.insidePattern && !symbol.scope?.paramNames.includes(symbol.name))
       return `infer ${symbol.name} extends ${symbol.type?.accept(this, null)}`;
     return symbol.name;
   }

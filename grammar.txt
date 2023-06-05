@@ -4,7 +4,7 @@ statement   ::= funcsig | funcbody
 funcsig     ::= SYMBOL "::" functypes
 
 functypes   ::= type | functype "->" functypes
-functype    ::= type | type "=" expr
+functype    ::= type | type "=" constant
 
 type        ::= "[" type "]" | "(" type ")" | SYMBOL typeparams | tupletype
 tupletype   ::= "(" type "," ")" | "(" type "," tupletypes ")"
@@ -24,7 +24,12 @@ funccall    ::= SYMBOL args
 args        ::= arg | arg args
 arg         ::= literal | SYMBOL | "(" expr ")"
 
-literal     ::= NATLIT | listlit | BOOLLIT | tuplelit
+literal     ::= NATLIT | BOOLLIT | listlit | tuplelit
 listlit     ::= "[" listitems "]" | "[" "]"
 listitems   ::= expr | expr "," listitems
 tuplelit    ::= "(" expr "," ")" | "(" expr "," listitems ")"
+
+const       ::= NATLIT | BOOLLIT | constlist | consttuple
+constlist   ::= "[" constitems "]" | "[" "]"
+constitems  ::= const | const "," constitems
+consttuple  ::= "(" const "," ")" | "(" const "," constitems ")"

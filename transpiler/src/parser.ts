@@ -74,7 +74,7 @@ export default class Parser {
     let nextTok = this.lexer.peek();
     if (nextTok.kind === "EQ") {
       this.lexer.nextToken();
-      defaultVal = this.expr();
+      defaultVal = this.constant(this.lexer.nextToken());
     }
 
     return new FuncType(type, defaultVal, type.line, type.column);
@@ -174,24 +174,10 @@ export default class Parser {
           params.push(new Symbol(nextTok.value, nextTok.line, nextTok.column));
           break;
         case "NATLIT":
-          const natLit = new NatLit(
-            Number.parseInt(nextTok.value),
-            nextTok.line,
-            nextTok.column
-          );
-          params.push(new Pattern(natLit, natLit.line, natLit.column));
-          break;
         case "BOOLLIT":
-          const boolLit = new BoolLit(
-            nextTok.value === "True",
-            nextTok.line,
-            nextTok.column
-          );
-          params.push(new Pattern(boolLit, boolLit.line, boolLit.column));
-          break;
         case "LBRACKET":
-          const listLit = this.listLit(nextTok);
-          params.push(new Pattern(listLit, nextTok.line, nextTok.column));
+          const lit = this.literal(nextTok);
+          params.push(new Pattern(lit, lit.line, lit.column));
           break;
         case "LPAR":
           const openingTok = nextTok;
@@ -226,21 +212,9 @@ export default class Parser {
     let nextTok = this.lexer.nextToken();
     switch (nextTok.kind) {
       case "NATLIT":
-        expr = new NatLit(
-          Number.parseInt(nextTok.value),
-          nextTok.line,
-          nextTok.column
-        );
-        break;
       case "BOOLLIT":
-        expr = new BoolLit(
-          nextTok.value === "True",
-          nextTok.line,
-          nextTok.column
-        );
-        break;
       case "LBRACKET":
-        expr = this.listLit(nextTok);
+        expr = this.literal(nextTok);
         break;
       case "SYMBOL":
         const secondTok = this.lexer.peek();
@@ -326,7 +300,8 @@ export default class Parser {
       nextTok.kind !== "EOL" &&
       nextTok.kind !== "EOF" &&
       nextTok.kind !== "RPAR" &&
-      nextTok.kind !== "RBRACKET"
+      nextTok.kind !== "RBRACKET" &&
+      nextTok.kind !== "ARROW"
     ) {
       args.push(this.arg());
       nextTok = this.lexer.peek();
@@ -341,21 +316,9 @@ export default class Parser {
     let nextTok = this.lexer.nextToken();
     switch (nextTok.kind) {
       case "NATLIT":
-        expr = new NatLit(
-          Number.parseInt(nextTok.value),
-          nextTok.line,
-          nextTok.column
-        );
-        break;
       case "BOOLLIT":
-        expr = new BoolLit(
-          nextTok.value === "True",
-          nextTok.line,
-          nextTok.column
-        );
-        break;
       case "LBRACKET":
-        expr = this.listLit(nextTok);
+        expr = this.literal(nextTok);
         break;
       case "SYMBOL":
         expr = new Symbol(nextTok.value, nextTok.line, nextTok.column);
@@ -374,6 +337,83 @@ export default class Parser {
     }
 
     return expr;
+  }
+
+  literal(nextTok: Token): NatLit | BoolLit | ListLit | TupleLit {
+    switch (nextTok.kind) {
+      case "NATLIT":
+        return new NatLit(
+          Number.parseInt(nextTok.value),
+          nextTok.line,
+          nextTok.column
+        );
+      case "BOOLLIT":
+        return new BoolLit(
+          nextTok.value === "True",
+          nextTok.line,
+          nextTok.column
+        );
+      case "LBRACKET":
+        return this.listLit(nextTok);
+      case "LPAR":
+        const openingTok = nextTok;
+        const expr = this.expr();
+        this.mustMatch(this.lexer.nextToken(), "COMMA");
+        return this.tupleLit(openingTok, expr);
+    }
+
+    throw this.unexpected(nextTok);
+  }
+
+  constant(nextTok: Token): NatLit | BoolLit | ListLit | TupleLit {
+    switch (nextTok.kind) {
+      case "NATLIT":
+      case "BOOLLIT":
+        return this.literal(nextTok);
+      case "LBRACKET":
+        return this.constantListLit(nextTok);
+      case "LPAR":
+        const openingTok = nextTok;
+        const constant = this.constant(this.lexer.nextToken());
+        this.mustMatch(this.lexer.nextToken(), "COMMA");
+        return this.constantTupleLit(openingTok, constant);
+    }
+
+    throw this.unexpected(nextTok);
+  }
+
+  constantListLit(openingTok: Token): ListLit {
+    let nextTok = this.lexer.peek();
+    if (nextTok.kind === "RBRACKET") {
+      this.lexer.nextToken();
+      return new ListLit([], openingTok.line, openingTok.column);
+    }
+
+    const items: Expr[] = [];
+
+    while (nextTok.kind !== "RBRACKET") {
+      items.push(this.constant(this.lexer.nextToken()));
+      nextTok = this.lexer.nextToken();
+    }
+
+    return new ListLit(items, openingTok.line, openingTok.column);
+  }
+
+  constantTupleLit(openingTok: Token, first: NatLit | BoolLit | ListLit | TupleLit) {
+    if (this.lexer.peek().kind === "RPAR") {
+      this.lexer.nextToken();
+      return new TupleLit([first], openingTok.line, openingTok.column);
+    }
+
+    const items = [first, this.constant(this.lexer.nextToken())];
+    let nextTok = this.lexer.nextToken();
+    while (nextTok.kind === "COMMA") {
+      items.push(this.constant(this.lexer.nextToken()));
+      nextTok = this.lexer.nextToken();
+    }
+
+    this.mustMatch(nextTok, "RPAR");
+    return new TupleLit(items, openingTok.line, openingTok.column);
   }
 
   unexpected(tok: Token): Error {

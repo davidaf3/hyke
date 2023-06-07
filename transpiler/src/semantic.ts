@@ -70,6 +70,14 @@ export class IdentificationVisitor extends AbstractVisitor<Context, void> {
 
     funcBody.def = funcDef;
 
+    if (funcBody.params.length !== funcDef.paramNames.length) {
+      throw new NameError(
+        `Function ${funcDef.name} has ${funcDef.paramNames.length} paramter(s), ${funcBody.params.length} defined`,
+        funcBody.line,
+        funcBody.column
+      );
+    }
+
     const paramNames: Map<string, number[]> = new Map();
     funcBody.params.forEach((param, i) => {
       if ("name" in param) {
@@ -147,12 +155,27 @@ export class IdentificationVisitor extends AbstractVisitor<Context, void> {
 
   visitFuncCall(funcCall: FuncCall, ctx: Context): void {
     const def = this.funcs.get(funcCall.name);
-    if (!def)
+    if (!def) {
       throw new NameError(
         `Function ${funcCall.name} not declared`,
         funcCall.line,
         funcCall.column
       );
+    }
+
+    const mandatoryParams = def.paramTypes.filter(
+      (type) => !type.defaultVal
+    ).length;
+    if (
+      funcCall.args.length < mandatoryParams ||
+      funcCall.args.length > def.paramTypes.length
+    ) {
+      throw new NameError(
+        `Function ${funcCall.name} has ${mandatoryParams} mandatory parameter(s), ${funcCall.args.length} provided`,
+        funcCall.line,
+        funcCall.column
+      );
+    }
 
     funcCall.def = def;
     funcCall.args.forEach((arg) => arg.accept(this, ctx));
@@ -160,8 +183,7 @@ export class IdentificationVisitor extends AbstractVisitor<Context, void> {
 
   visitSymbol(symbol: Symbol, ctx: Context): void {
     symbol.scope = ctx.funcDef;
-    if (!symbol.scope || !symbol.scope.paramNames.includes(symbol.name))
-      symbol.insidePattern = ctx.insidePattern;
+    symbol.insidePattern = ctx.insidePattern;
   }
 }
 
@@ -176,6 +198,12 @@ export class TypeCheckingVisitor extends AbstractVisitor<Type | null, void> {
   }
 
   visitFuncDef(funcDef: FuncDef, inferredType: Type | null): void {
+    // Functions with no parameters act as values
+    if (funcDef.paramTypes.length === 0) {
+      this.symbolTypes.set(funcDef.name, funcDef.returnType);
+      return;
+    }
+
     funcDef.paramTypes.forEach((paramType, i) =>
       paramType.defaultVal?.accept(this, paramType.type)
     );
@@ -322,7 +350,9 @@ export class TypeCheckingVisitor extends AbstractVisitor<Type | null, void> {
     if (!inferredType) throw new Error();
     symbol.type = inferredType;
 
-    const symbolType = this.symbolTypes.get(symbol.getScopedName());
+    const symbolType =
+      this.symbolTypes.get(symbol.getScopedName()) ??
+      this.symbolTypes.get(symbol.name);
     if (!symbolType) {
       this.symbolTypes.set(symbol.getScopedName(), inferredType);
       return;

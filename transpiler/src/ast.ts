@@ -31,6 +31,7 @@ export class FuncDef extends ASTNode {
     public paramTypes: FuncType[],
     public returnType: Type,
     public paramNames: string[],
+    public value: Expr | null,
     line: number,
     column: number
   ) {

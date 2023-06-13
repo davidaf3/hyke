@@ -57,6 +57,7 @@ export class IdentificationVisitor extends AbstractVisitor<Context, void> {
 
   visitFuncDef(funcDef: FuncDef, ctx: Context): void {
     this.funcs.set(funcDef.name, funcDef);
+    funcDef.value?.accept(this, {...ctx, funcDef});
   }
 
   visitFuncBody(funcBody: FuncBody, ctx: Context): void {
@@ -207,6 +208,8 @@ export class TypeCheckingVisitor extends AbstractVisitor<Type | null, void> {
     funcDef.paramTypes.forEach((paramType, i) =>
       paramType.defaultVal?.accept(this, paramType.type)
     );
+
+    funcDef.value?.accept(this, funcDef.returnType);
   }
 
   visitFuncBody(funcBody: FuncBody, inferredType: Type | null): void {

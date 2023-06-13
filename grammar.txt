@@ -1,16 +1,15 @@
 program     ::= statement EOF | statement EOL program
 statement   ::= funcsig | funcbody
 
-funcsig     ::= SYMBOL "::" functypes
+funcsig     ::= SYMBOL "::" funcsigtype
+funcsigtype ::= functypes "->" functype | functype
 
-functypes   ::= type | functype "->" functypes
+functypes   ::= functype | functype functypes
 functype    ::= type | type "=" constant
 
-type        ::= "[" type "]" | "(" type ")" | SYMBOL typeparams | tupletype
+type        ::= "[" type "]" | tupletype | SYMBOL
 tupletype   ::= "(" type "," ")" | "(" type "," tupletypes ")"
 tupletypes  ::= type | type "," tupletypes
-typeparams  ::= typeparam typeparams | λ
-typeparam   ::= SYMBOL | "[" type "]" | "(" type ")"
 
 funcbody    ::= SYMBOL params "=" expr
 

@@ -43,6 +43,9 @@ export class CodeGenVisitor extends AbstractVisitor<null, string> {
         .join(", ")}>`;
     }
 
+    if (funcDef.body.length === 0 && funcDef.value)
+      return code + ` = ${funcDef.value.accept(this, null)};\n\n`;
+
     code += " =\n";
     code += funcDef.body
       .map((funcBody) => `\t${funcBody.accept(this, null)}\n`)

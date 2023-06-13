@@ -1,6 +1,6 @@
 main :: Nat
 main = sum [1, 2, 3, 4]
 
-sum :: [Nat] -> Nat = 0 -> Nat
-sum (x:xs) acc = sum xs (acc + x)
-sum [] acc = acc
+sum :: [Nat] -> Nat
+sum [] = 0
+sum (x:xs) = x + sum xs

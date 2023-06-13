@@ -1,11 +1,11 @@
 main :: [Nat]
 main = fiblist 6
 
-fiblist :: Nat -> Nat = 0 -> [Nat] = [] -> [Nat]
+fiblist :: Nat Nat = 0 [Nat] = [] -> [Nat]
 fiblist n n l = fib n : l
 fiblist n i l = fiblist n (i + 1) (fib i : l)
 
-fib :: Nat -> Nat = 2 -> Nat = 1 -> Nat = 0 -> Nat
+fib :: Nat Nat = 2 Nat = 1 Nat = 0 -> Nat
 fib 0 i p1 p2 = 0
 fib 1 i p1 p2 = 1
 fib n n p1 p2 = p1 + p2

@@ -29,8 +29,10 @@ export default class Parser {
       if (nextTok.kind !== "EOL") {
         const nameTok = nextTok;
         nextTok = this.lexer.peek();
-        if (nextTok.kind === "QUADDOTS") funcDefs.push(this.funcSig(nameTok));
-        else funcBodies.push(this.funcBody(nameTok));
+        if (nextTok.kind === "QUADDOTS") {
+          this.lexer.nextToken();
+          funcDefs.push(this.funcSig(nameTok));
+        } else funcBodies.push(this.funcBody(nameTok));
       }
 
       nextTok = this.lexer.nextToken();
@@ -42,26 +44,30 @@ export default class Parser {
   funcSig(nameTok: Token): FuncDef {
     const types: FuncType[] = [];
 
-    let nextTok = this.lexer.nextToken();
-    while (nextTok.kind !== "EOL" && nextTok.kind !== "EOF") {
+    let nextTok = this.lexer.peek();
+    while (
+      nextTok.kind !== "EOL" &&
+      nextTok.kind !== "EOF" &&
+      nextTok.kind !== "ARROW"
+    ) {
       types.push(this.funcType());
-      nextTok = this.lexer.nextToken();
+      nextTok = this.lexer.peek();
+    }
+
+    if (nextTok.kind === "ARROW") {
+      this.lexer.nextToken();
+      types.push(this.funcType());
     }
 
     const params = types.slice(0, -1);
     const returnType = types[types.length - 1];
-    if (returnType.defaultVal)
-      throw new ParseError(
-        "Return type can't have a default value",
-        returnType.defaultVal.line,
-        returnType.defaultVal.column
-      );
 
     return new FuncDef(
       nameTok.value,
       params,
       returnType.type,
       params.map((fType, i) => `${fType.type.name.toLowerCase()}${i}`),
+      returnType.defaultVal,
       nameTok.line,
       nameTok.column
     );
@@ -92,73 +98,19 @@ export default class Parser {
 
     if (nextTok.kind === "LPAR") {
       const { line, column } = nextTok;
-      let type = this.type();
-
+      const tupleTypes = [this.type()];
       nextTok = this.lexer.nextToken();
-      if (nextTok.kind === "COMMA") {
-        const tupleTypes = [type];
-
-        if (this.lexer.peek().kind === "RPAR") nextTok = this.lexer.nextToken();
-        else {
-          while (nextTok.kind === "COMMA") {
-            tupleTypes.push(this.type());
-            nextTok = this.lexer.nextToken();
-          }
-        }
-
-        type = new Type("Tuple", tupleTypes, line, column);
-      }
-
-      this.mustMatch(nextTok, "RPAR");
-      return type;
-    }
-
-    const { value, line, column } = nextTok;
-    const params: Type[] = [];
-    nextTok = this.lexer.peek();
-    while (
-      nextTok.kind !== "RBRACKET" &&
-      nextTok.kind !== "RPAR" &&
-      nextTok.kind !== "COMMA" &&
-      nextTok.kind !== "EQ" &&
-      nextTok.kind !== "ARROW" &&
-      nextTok.kind !== "EOL" &&
-      nextTok.kind !== "EOF"
-    ) {
-      params.push(this.typeParam());
-      nextTok = this.lexer.peek();
-    }
-
-    return new Type(value, params, line, column);
-  }
-
-  typeParam(): Type {
-    let nextTok = this.lexer.nextToken();
-
-    if (nextTok.kind === "LBRACKET") {
-      const { line, column } = nextTok;
-      const contained = this.type();
-      this.mustMatch(this.lexer.nextToken(), "RBRACKET");
-      return new Type("List", [contained], line, column);
-    }
-
-    if (nextTok.kind === "LPAR") {
-      const { line, column } = nextTok;
-      let type = this.type();
-
-      nextTok = this.lexer.nextToken();
-      if (nextTok.kind === "COMMA") {
-        const tupleTypes = [type];
+      const secondTok = this.lexer.peek();
+      if (secondTok.kind === "RPAR" && nextTok.kind === "COMMA") {
+        nextTok = this.lexer.nextToken();
+      } else {
         while (nextTok.kind === "COMMA") {
           tupleTypes.push(this.type());
           nextTok = this.lexer.nextToken();
         }
-
-        type = new Type("Tuple", tupleTypes, line, column);
       }
-
       this.mustMatch(nextTok, "RPAR");
-      return type;
+      return new Type("Tuple", tupleTypes, line, column);
     }
 
     return new Type(nextTok.value, [], nextTok.line, nextTok.column);
@@ -399,7 +351,10 @@ export default class Parser {
     return new ListLit(items, openingTok.line, openingTok.column);
   }
 
-  constantTupleLit(openingTok: Token, first: NatLit | BoolLit | ListLit | TupleLit) {
+  constantTupleLit(
+    openingTok: Token,
+    first: NatLit | BoolLit | ListLit | TupleLit
+  ) {
     if (this.lexer.peek().kind === "RPAR") {
       this.lexer.nextToken();
       return new TupleLit([first], openingTok.line, openingTok.column);

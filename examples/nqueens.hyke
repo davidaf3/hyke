@@ -1,5 +1,4 @@
-main :: [(Nat, Nat)]
-main = solve 8
+main :: [(Nat, Nat)] = (solve 8)
 
 solve :: Nat [(Nat, Nat)] = [] Nat = 0 -> [(Nat, Nat)]
 solve ymax queens ymax = queens

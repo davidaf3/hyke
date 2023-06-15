@@ -26,6 +26,7 @@ export class IdentificationVisitor extends AbstractVisitor<Context, void> {
 
   visitProgram(program: Program, ctx: Context): void {
     program.funcDefs.forEach((funcDef) => funcDef.accept(this, ctx));
+    program.funcDefs.forEach((funcDef) => funcDef.value?.accept(this, ctx));
     program.funcBodies.forEach((funcBody) => funcBody.accept(this, ctx));
 
     program.funcDefs.forEach((funcDef) => {
@@ -57,7 +58,6 @@ export class IdentificationVisitor extends AbstractVisitor<Context, void> {
 
   visitFuncDef(funcDef: FuncDef, ctx: Context): void {
     this.funcs.set(funcDef.name, funcDef);
-    funcDef.value?.accept(this, {...ctx, funcDef});
   }
 
   visitFuncBody(funcBody: FuncBody, ctx: Context): void {
@@ -124,9 +124,11 @@ export class IdentificationVisitor extends AbstractVisitor<Context, void> {
       funcDef.paramNames[idx] = name;
     });
 
-    if (paramNames.size === funcDef.paramNames.length)
-      funcDef.default = funcBody;
-    else funcDef.body.push(funcBody);
+    if (paramNames.size === funcDef.paramNames.length) {
+      if (!funcDef.default) funcDef.default = funcBody;
+    } else {
+      funcDef.body.push(funcBody);
+    }
 
     const funcCtx = { ...ctx, funcDef };
     funcBody.params.forEach((param) => param.accept(this, funcCtx));
@@ -205,11 +207,25 @@ export class TypeCheckingVisitor extends AbstractVisitor<Type | null, void> {
       return;
     }
 
-    funcDef.paramTypes.forEach((paramType, i) =>
-      paramType.defaultVal?.accept(this, paramType.type)
-    );
+    funcDef.paramTypes.forEach((paramType) => {
+      paramType.accept(this, paramType.type);
+    });
 
     funcDef.value?.accept(this, funcDef.returnType);
+  }
+
+  visitFuncType(funcType: FuncType, param: Type | null): void {
+    if (funcType.defaultVal) {
+      if (!funcType.defaultVal.isConstant()) {
+        throw new TypeError(
+          "Parameter default value must be constant",
+          funcType.defaultVal.line,
+          funcType.defaultVal.column
+        );
+      }
+
+      funcType.defaultVal.accept(this, funcType.type);
+    }
   }
 
   visitFuncBody(funcBody: FuncBody, inferredType: Type | null): void {
@@ -230,12 +246,13 @@ export class TypeCheckingVisitor extends AbstractVisitor<Type | null, void> {
 
     switch (binOp.op) {
       case ":":
-        if (inferredType.name !== "List")
+        if (inferredType.name !== "List") {
           throw new TypeError(
             "Invalid type for list push, should be list",
             binOp.line,
             binOp.column
           );
+        }
         binOp.left.accept(this, inferredType.params[0]);
         binOp.right.accept(this, inferredType);
         break;

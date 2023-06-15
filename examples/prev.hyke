@@ -1,5 +1,4 @@
-main :: Nat
-main = prev 23
+main :: Nat = (prev 23)
 
 prev :: Nat -> Nat
 prev (n + 1) = n

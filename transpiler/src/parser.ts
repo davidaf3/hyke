@@ -42,32 +42,30 @@ export default class Parser {
   }
 
   funcSig(nameTok: Token): FuncDef {
-    const types: FuncType[] = [];
+    const types = [this.funcType()];
 
     let nextTok = this.lexer.peek();
-    while (
-      nextTok.kind !== "EOL" &&
-      nextTok.kind !== "EOF" &&
-      nextTok.kind !== "ARROW"
-    ) {
-      types.push(this.funcType());
-      nextTok = this.lexer.peek();
-    }
+    if (nextTok.kind !== "EOL" && nextTok.kind !== "EOF") {
+      while (nextTok.kind !== "ARROW") {
+        types.push(this.funcType());
+        nextTok = this.lexer.peek();
+      }
 
-    if (nextTok.kind === "ARROW") {
       this.lexer.nextToken();
       types.push(this.funcType());
     }
 
     const params = types.slice(0, -1);
     const returnType = types[types.length - 1];
+    const defaultVal = returnType.defaultVal;
+    returnType.defaultVal = null;
 
     return new FuncDef(
       nameTok.value,
       params,
       returnType.type,
       params.map((fType, i) => `${fType.type.name.toLowerCase()}${i}`),
-      returnType.defaultVal,
+      defaultVal,
       nameTok.line,
       nameTok.column
     );
@@ -80,7 +78,7 @@ export default class Parser {
     let nextTok = this.lexer.peek();
     if (nextTok.kind === "EQ") {
       this.lexer.nextToken();
-      defaultVal = this.constant(this.lexer.nextToken());
+      defaultVal = this.arg();
     }
 
     return new FuncType(type, defaultVal, type.line, type.column);
@@ -113,6 +111,7 @@ export default class Parser {
       return new Type("Tuple", tupleTypes, line, column);
     }
 
+    this.mustMatch(nextTok, "SYMBOL");
     return new Type(nextTok.value, [], nextTok.line, nextTok.column);
   }
 
@@ -315,60 +314,6 @@ export default class Parser {
     }
 
     throw this.unexpected(nextTok);
-  }
-
-  constant(nextTok: Token): NatLit | BoolLit | ListLit | TupleLit {
-    switch (nextTok.kind) {
-      case "NATLIT":
-      case "BOOLLIT":
-        return this.literal(nextTok);
-      case "LBRACKET":
-        return this.constantListLit(nextTok);
-      case "LPAR":
-        const openingTok = nextTok;
-        const constant = this.constant(this.lexer.nextToken());
-        this.mustMatch(this.lexer.nextToken(), "COMMA");
-        return this.constantTupleLit(openingTok, constant);
-    }
-
-    throw this.unexpected(nextTok);
-  }
-
-  constantListLit(openingTok: Token): ListLit {
-    let nextTok = this.lexer.peek();
-    if (nextTok.kind === "RBRACKET") {
-      this.lexer.nextToken();
-      return new ListLit([], openingTok.line, openingTok.column);
-    }
-
-    const items: Expr[] = [];
-
-    while (nextTok.kind !== "RBRACKET") {
-      items.push(this.constant(this.lexer.nextToken()));
-      nextTok = this.lexer.nextToken();
-    }
-
-    return new ListLit(items, openingTok.line, openingTok.column);
-  }
-
-  constantTupleLit(
-    openingTok: Token,
-    first: NatLit | BoolLit | ListLit | TupleLit
-  ) {
-    if (this.lexer.peek().kind === "RPAR") {
-      this.lexer.nextToken();
-      return new TupleLit([first], openingTok.line, openingTok.column);
-    }
-
-    const items = [first, this.constant(this.lexer.nextToken())];
-    let nextTok = this.lexer.nextToken();
-    while (nextTok.kind === "COMMA") {
-      items.push(this.constant(this.lexer.nextToken()));
-      nextTok = this.lexer.nextToken();
-    }
-
-    this.mustMatch(nextTok, "RPAR");
-    return new TupleLit(items, openingTok.line, openingTok.column);
   }
 
   unexpected(tok: Token): Error {

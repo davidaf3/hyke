@@ -1,5 +1,4 @@
-main :: Nat
-main = sum [1, 2, 3, 4]
+main :: Nat = (sum [1, 2, 3, 4])
 
 sum :: [Nat] -> Nat
 sum [] = 0

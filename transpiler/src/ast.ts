@@ -154,6 +154,10 @@ export class Symbol extends ASTNode {
   getScopedName(): string {
     return `${this.scope?.name ?? "global"}_${this.name}`;
   }
+
+  isConstant(): boolean {
+    return false;
+  }
 }
 
 export class BinOp extends ASTNode {
@@ -171,6 +175,10 @@ export class BinOp extends ASTNode {
 
   accept<P, R>(visitor: Visitor<P, R>, param: P): R {
     return visitor.visitBinOp(this, param);
+  }
+
+  isConstant(): boolean {
+    return this.left.isConstant() && this.right.isConstant();
   }
 }
 
@@ -190,6 +198,10 @@ export class FuncCall extends ASTNode {
   accept<P, R>(visitor: Visitor<P, R>, param: P): R {
     return visitor.visitFuncCall(this, param);
   }
+
+  isConstant(): boolean {
+    return false;
+  }
 }
 
 export class ListLit extends ASTNode {
@@ -201,6 +213,10 @@ export class ListLit extends ASTNode {
 
   accept<P, R>(visitor: Visitor<P, R>, param: P): R {
     return visitor.visitListLit(this, param);
+  }
+
+  isConstant(): boolean {
+    return this.values.every((value) => value.isConstant());
   }
 }
 
@@ -214,6 +230,10 @@ export class TupleLit extends ASTNode {
   accept<P, R>(visitor: Visitor<P, R>, param: P): R {
     return visitor.visitTupleLit(this, param);
   }
+
+  isConstant(): boolean {
+    return this.values.every((value) => value.isConstant());
+  }
 }
 
 export class NatLit extends ASTNode {
@@ -226,6 +246,10 @@ export class NatLit extends ASTNode {
   accept<P, R>(visitor: Visitor<P, R>, param: P): R {
     return visitor.visitNatLit(this, param);
   }
+
+  isConstant(): boolean {
+    return true;
+  }
 }
 
 export class BoolLit extends ASTNode {
@@ -237,5 +261,9 @@ export class BoolLit extends ASTNode {
 
   accept<P, R>(visitor: Visitor<P, R>, param: P): R {
     return visitor.visitBoolLit(this, param);
+  }
+
+  isConstant(): boolean {
+    return true;
   }
 }

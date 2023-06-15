@@ -1,5 +1,4 @@
-main :: Nat
-main = fib 6
+main :: Nat = (fib 6)
 
 fib :: Nat -> Nat
 fib 0 = 0

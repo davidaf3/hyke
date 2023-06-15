@@ -1,5 +1,4 @@
-main :: [Nat]
-main = fiblist 6
+main :: [Nat] = (fiblist 6)
 
 fiblist :: Nat Nat = 0 [Nat] = [] -> [Nat]
 fiblist n n l = fib n : l

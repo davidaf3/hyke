@@ -1,5 +1,4 @@
-main :: (Bool, Nat, [((Bool,), Nat, Nat)])
-main = f 1
+main :: (Bool, Nat, [((Bool,), Nat, Nat)]) = (f 1)
 
 f :: Nat -> (Bool, Nat, [((Bool,), Nat, Nat)])
 f 1 = (True, 1, [((True,), 2, 1), ((True,), 3, 1)])

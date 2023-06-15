@@ -5,7 +5,7 @@ funcsig     ::= SYMBOL "::" funcsigtype
 funcsigtype ::= functypes "->" functype | functype
 
 functypes   ::= functype | functype functypes
-functype    ::= type | type "=" constant
+functype    ::= type | type "=" arg
 
 type        ::= "[" type "]" | tupletype | SYMBOL
 tupletype   ::= "(" type "," ")" | "(" type "," tupletypes ")"
@@ -27,8 +27,3 @@ literal     ::= NATLIT | BOOLLIT | listlit | tuplelit
 listlit     ::= "[" listitems "]" | "[" "]"
 listitems   ::= expr | expr "," listitems
 tuplelit    ::= "(" expr "," ")" | "(" expr "," listitems ")"
-
-const       ::= NATLIT | BOOLLIT | constlist | consttuple
-constlist   ::= "[" constitems "]" | "[" "]"
-constitems  ::= const | const "," constitems
-consttuple  ::= "(" const "," ")" | "(" const "," constitems ")"

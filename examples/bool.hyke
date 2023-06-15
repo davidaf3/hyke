@@ -1,5 +1,4 @@
-main :: Bool
-main = isfib 13 7
+main :: Bool = (isfib 13 7)
 
 isfib :: Nat Nat -> Bool
 isfib (fib n) n = True

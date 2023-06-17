@@ -204,12 +204,11 @@ export class TypeCheckingVisitor extends AbstractVisitor<Type | null, void> {
     // Functions with no parameters act as values
     if (funcDef.paramTypes.length === 0) {
       this.symbolTypes.set(funcDef.name, funcDef.returnType);
-      return;
+    } else {
+      funcDef.paramTypes.forEach((paramType) => {
+        paramType.accept(this, paramType.type);
+      });
     }
-
-    funcDef.paramTypes.forEach((paramType) => {
-      paramType.accept(this, paramType.type);
-    });
 
     funcDef.value?.accept(this, funcDef.returnType);
   }

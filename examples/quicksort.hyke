@@ -1,4 +1,4 @@
-main :: Nat = (quicksort [5, 2, 8, 1, 9])
+main :: [Nat] = (quicksort [5, 2, 8, 1, 5, 9])
 
 quicksort :: [Nat] -> [Nat]
 quicksort [] = []

@@ -1,0 +1,25 @@
+main :: Nat = (quicksort [5, 2, 8, 1, 9])
+
+quicksort :: [Nat] -> [Nat]
+quicksort [] = []
+quicksort (x:xs) = concat (quicksort (smaller x xs)) (x : (quicksort (larger x xs)))
+
+smaller :: Nat [Nat] [Nat] = [] -> [Nat]
+smaller pivot [] result = result
+smaller pivot (x:xs) result = smaller pivot xs (addif (x <= pivot) x result)
+
+larger :: Nat [Nat] [Nat] = [] -> [Nat]
+larger pivot [] result = result
+larger pivot (x:xs) result = larger pivot xs (addif (not (x <= pivot)) x result)
+
+concat :: [Nat] [Nat] -> [Nat]
+concat [] ys = ys
+concat (x:xs) ys = x : concat xs ys
+
+not :: Bool -> Bool
+not True = False
+not False = True
+
+addif :: Bool Nat [Nat] -> [Nat]
+addif True x xs = x:xs
+addif False x xs = xs

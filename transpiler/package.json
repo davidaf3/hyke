@@ -1,10 +1,15 @@
 {
   "name": "hyke",
   "version": "1.0.0",
+  "author": "davidaf3",
+  "homepage": "https://github.com/davidaf3/hyke",
+  "repository": {
+    "url": "https://github.com/davidaf3/hyke"
+  },
   "main": "./dist/index.js",
-  "bin": "./dist/index.js",
+  "bin": "./dist/cli.js",
   "scripts": {
-    "build": "tsc && python -c \"from distutils.dir_util import copy_tree;copy_tree('./resources', './dist/resources')\"",
+    "build": "tsc",
     "test": "jest"
   },
   "devDependencies": {

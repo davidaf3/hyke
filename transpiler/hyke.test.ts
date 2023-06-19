@@ -1,10 +1,5 @@
-import { existsSync, unlinkSync } from "fs";
-import compile from "./src/compiler";
-import run from "./src/runner";
-
-afterAll(async () => {
-  if (existsSync("out.ts")) unlinkSync("out.ts");
-});
+import { readFileSync } from "fs";
+import { compile, run } from ".";
 
 const exampleOutputs = new Map([
   ["bool.hyke", "True"],
@@ -26,9 +21,12 @@ const exampleOutputs = new Map([
 
 exampleOutputs.forEach((expected, file) => {
   test(file, () => {
-    compile(`../examples/${file}`, (e: Error) => {
+    const source = readFileSync(`../examples/${file}`, {
+      encoding: "utf-8",
+    });
+    const outCode = compile(source, (e: Error) => {
       throw e;
     });
-    expect(run("out.ts")).toBe(expected);
+    expect(run(outCode)).toBe(expected);
   });
 });

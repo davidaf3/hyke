@@ -1,13 +1,16 @@
 import ts from "typescript";
-import path from "path";
 
-export default function run(fileName: string): string {
-  return getOutputType(fileName);
+export function run(sourceCode: string): string {
+  return getOutputType(sourceCode);
 }
 
-function getOutputType(fileName: string): string {
-  const fileNameRegex = new RegExp(path.basename(fileName));
-  const program = ts.createProgram([fileName], {});
+function getOutputType(sourceCode: string): string {
+  const fileNameRegex = new RegExp("out.ts");
+  const program = ts.createProgram(
+    ["out.ts"],
+    {},
+    createCompilerHost(sourceCode)
+  );
   const checker = program.getTypeChecker();
 
   let outputType: string = "";
@@ -125,4 +128,20 @@ function isLiteralType(type: ts.Type): type is ts.LiteralType {
 
 function capitalize(str: string): string {
   return str.slice(0, 1).toUpperCase() + str.slice(1);
+}
+
+function createCompilerHost(sourceCode: string): ts.CompilerHost {
+  return {
+    getSourceFile: (name) =>
+      ts.createSourceFile(name, sourceCode, ts.ScriptTarget.ES2015),
+    getDefaultLibFileName: () => "lib.d.ts",
+    writeFile: (_fileName, _content) => {},
+    getCurrentDirectory: () => ".",
+    getDirectories: (path) => [],
+    getCanonicalFileName: (fileName) => fileName,
+    getNewLine: () => "\n",
+    useCaseSensitiveFileNames: () => true,
+    fileExists: (_) => true,
+    readFile: (_) => sourceCode,
+  };
 }

@@ -4,11 +4,10 @@ import Lexer from "./lexer";
 import Parser from "./parser";
 import { IdentificationVisitor, TypeCheckingVisitor } from "./semantic";
 
-export default function compile(
-  fileName: string,
+export function compile(
+  source: string,
   errorHandler: (error: Error) => void
-) {
-  const source = readFileSync(fileName, { encoding: "utf-8" });
+): string {
   const lexer = new Lexer(source);
   const parser = new Parser(lexer);
   const identificationVisitor = new IdentificationVisitor();
@@ -22,9 +21,9 @@ export default function compile(
       funcDef: null,
     });
     typeCheckingVisitor.visitProgram(program, null);
-    const code = codeGenVisitor.visitProgram(program);
-    writeFileSync("out.ts", code, { encoding: "utf-8" });
+    return codeGenVisitor.visitProgram(program);
   } catch (e) {
     errorHandler(e as Error);
+    return "";
   }
 }

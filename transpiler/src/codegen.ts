@@ -15,16 +15,10 @@ import {
   Type,
 } from "./ast";
 import { AbstractVisitor } from "./visitor";
-import { readFileSync } from "fs";
-import path from "path";
+import prelude from "./prelude";
 
 export class CodeGenVisitor extends AbstractVisitor<null, string> {
   visitProgram(program: Program): string {
-    const preludePath = path.join(__dirname, "..", "resources", "prelude.ts");
-    const prelude = readFileSync(preludePath, {
-      encoding: "utf-8",
-    });
-
     return (
       prelude +
       program.funcDefs.map((funcDef) => funcDef.accept(this, null)).join("")

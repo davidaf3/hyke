@@ -1,3 +1,4 @@
+export default `
 export type List<T> = [T, List<T>] | [];
 
 export type Bool = true | false;
@@ -52,3 +53,5 @@ export type ListGet<L extends List<any>, I extends Nat, C extends Nat = 0> =
 
 //-------------------------- End of prelude --------------------------
 
+
+`;

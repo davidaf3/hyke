@@ -1,8 +1,8 @@
 import ts from "typescript";
 import path from "path";
 
-export default function run(fileName: string) {
-  console.log(getOutputType(fileName));
+export default function run(fileName: string): string {
+  return getOutputType(fileName);
 }
 
 function getOutputType(fileName: string): string {

@@ -4,11 +4,14 @@
   "main": "./dist/index.js",
   "bin": "./dist/index.js",
   "scripts": {
-    "build": "tsc && python -c \"from distutils.dir_util import copy_tree;copy_tree('./resources', './dist/resources')\""
+    "build": "tsc && python -c \"from distutils.dir_util import copy_tree;copy_tree('./resources', './dist/resources')\"",
+    "test": "jest"
   },
   "devDependencies": {
     "@tsconfig/node16": "^1.0.3",
-    "@types/node": "^18.11.9"
+    "@types/jest": "^29.5.2",
+    "@types/node": "^18.11.9",
+    "jest": "^29.5.0"
   },
   "dependencies": {
     "typescript": "^5.0.4"

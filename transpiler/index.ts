@@ -15,11 +15,11 @@ function main() {
   switch (command) {
     case "r":
     case "run":
-      run(fileName);
+      console.log(run(fileName));
       break;
     case "c":
     case "compile":
-      compile(fileName);
+      compile(fileName, (error) => console.log(error.message));
       break;
     default:
       console.log(`Unknown command: ${command}`);

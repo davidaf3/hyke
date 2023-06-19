@@ -41,15 +41,6 @@ export class FuncDef extends ASTNode {
   accept<P, R>(visitor: Visitor<P, R>, param: P): R {
     return visitor.visitFuncDef(this, param);
   }
-
-  toJSON() {
-    return {
-      name: this.name,
-      paramTypes: this.paramTypes,
-      returnType: this.returnType,
-      paramNames: this.paramNames,
-    };
-  }
 }
 
 export class FuncType extends ASTNode {

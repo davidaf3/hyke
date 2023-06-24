@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="index.css" />
+    <title>Document</title>
+</head>
+
+<body>
+    <div class="editor-container">
+        <div id="hykeEditor"></div>
+        <div id="tsEditor"></div>
+    </div>
+    <h5>Output</h5>
+    <textarea id="output" readonly></textarea>
+    <button id="compileButton">Compile</button>
+    <button id="runButton">Run</button>
+    <select id="exampleSelect">
+        <option value="nqueens.hyke" selected>nqueens.hyke</option>
+        <option value="quicksort.hyke">quicksort.hyke</option>
+    </select>
+    <script type="module" src="index.ts"></script>
+</body>
+
+</html>

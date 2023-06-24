@@ -1,5 +1,4 @@
-export default `
-export type List<T> = [T, List<T>] | [];
+export default `export type List<T> = [T, List<T>] | [];
 
 export type Bool = true | false;
 

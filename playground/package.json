@@ -1,0 +1,17 @@
+{
+  "name": "hyke-playground",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "start": "parcel index.html",
+    "build": "python -c \"import shutil; shutil.rmtree('.\\dist')\" && parcel build index.html"
+  },
+  "dependencies": {
+    "hyke": "file:../transpiler",
+    "monaco-editor": "^0.39.0"
+  },
+  "devDependencies": {
+    "parcel": "^2.9.2",
+    "process": "^0.11.10"
+  }
+}

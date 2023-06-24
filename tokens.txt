@@ -1,8 +1,8 @@
 NATLIT      = [0-9]+
-BINOP       = (+ | : | - | * | < | <= | == | !!)
-BOOLLIT     = (True | False)
+BINOP       = (\+|:|-|\*|<|<=|==|!!)
+BOOLLIT     = (True|False)
 SYMBOL      = [a-zA-Z][a-zA-Z0-9]*
-EOL         = (\r | \n)+
+EOL         = (\r|\n)+
 
 QUADDOTS    = ::
 LPAR        = (

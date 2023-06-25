@@ -3,24 +3,41 @@
 
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="index.css" />
-    <title>Document</title>
+    <title>hyke Playground</title>
 </head>
 
 <body>
-    <div class="editor-container">
-        <div id="hykeEditor"></div>
-        <div id="tsEditor"></div>
+    <div id="editorsContainer">
+        <div id="hykeContainer">
+            <ul>
+                <li>
+                    <h4>hyke</h4>
+                </li>
+                <li><button id="runButton">Run</button></li>
+                <li>
+                    <label for="exampleSelect">Example:</label>
+                    <select id="exampleSelect">
+                        <option value="nqueens.hyke" selected>nqueens.hyke</option>
+                        <option value="quicksort.hyke">quicksort.hyke</option>
+                    </select>
+                </li>
+            </ul>
+            <div id="hykeEditor"></div>
+        </div>
+        <div id="dragBar"></div>
+        <div id="tsContainer">
+            <ul>
+                <li>
+                    <h4>TypeScript</h4>
+                </li>
+            </ul>
+            <div id="tsEditor"></div>
+        </div>
     </div>
     <h5>Output</h5>
     <textarea id="output" readonly></textarea>
-    <button id="compileButton">Compile</button>
-    <button id="runButton">Run</button>
-    <select id="exampleSelect">
-        <option value="nqueens.hyke" selected>nqueens.hyke</option>
-        <option value="quicksort.hyke">quicksort.hyke</option>
-    </select>
     <script type="module" src="index.ts"></script>
 </body>
 

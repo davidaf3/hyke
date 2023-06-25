@@ -2,18 +2,28 @@ import { compile, run } from "hyke";
 import * as monaco from "monaco-editor";
 
 (function () {
+  function doCompile() {
+    clearOutput();
+    const compiled = compile(hykeEditor.getValue(), compilationErrorHandler);
+    tsEditor.setValue(compiled);
+    // Skip prelude (52 lines)
+    tsEditor.setScrollTop(
+      tsEditor.getOption(monaco.editor.EditorOption.lineHeight) * 52
+    );
+  }
+
   function clearOutput() {
     monaco.editor.removeAllMarkers("hyke");
     outputTextArea.value = "";
   }
 
-  async function fecthExample(filename) {
+  async function fecthExample(filename: string) {
     const response = await fetch(
       `https://raw.githubusercontent.com/davidaf3/hyke/master/examples/${filename}`
     );
     const source = await response.text();
     hykeEditor.setValue(source);
-    tsEditor.setValue("");
+    doCompile();
     clearOutput();
   }
 
@@ -35,10 +45,13 @@ import * as monaco from "monaco-editor";
     ]);
   }
 
+  const editorsContainer = document.getElementById(
+    "editorsContainer"
+  ) as HTMLElement;
+  const hykeContainer = document.getElementById("hykeContainer") as HTMLElement;
+  const tsContainer = document.getElementById("tsContainer") as HTMLElement;
+  const dragBar = document.getElementById("dragBar") as HTMLElement;
   const runButton = document.getElementById("runButton") as HTMLButtonElement;
-  const compileButton = document.getElementById(
-    "compileButton"
-  ) as HTMLButtonElement;
   const exampleSelect = document.getElementById(
     "exampleSelect"
   ) as HTMLSelectElement;
@@ -90,33 +103,26 @@ import * as monaco from "monaco-editor";
   });
 
   const hykeEditor = monaco.editor.create(
-    document.getElementById("hykeEditor") as HTMLElement,
+    document.getElementById("hykeEditor")!,
     {
       language: "hyke",
+      automaticLayout: true,
       minimap: {
         enabled: false,
       },
     }
   );
-  const tsEditor = monaco.editor.create(
-    document.getElementById("tsEditor") as HTMLElement,
-    {
-      language: "typescript",
-      minimap: {
-        enabled: false,
-      },
-    }
-  );
+  const tsEditor = monaco.editor.create(document.getElementById("tsEditor")!, {
+    language: "typescript",
+    automaticLayout: true,
+    minimap: {
+      enabled: false,
+    },
+  });
 
-  compileButton.onclick = () => {
-    clearOutput();
-    const compiled = compile(hykeEditor.getValue(), compilationErrorHandler);
-    tsEditor.setValue(compiled);
-    // Skip prelude (52 lines)
-    tsEditor.setScrollTop(
-      tsEditor.getOption(monaco.editor.EditorOption.lineHeight) * 52
-    );
-  };
+  hykeEditor.onDidChangeModelContent(() => {
+    doCompile();
+  });
 
   runButton.onclick = () => {
     clearOutput();
@@ -127,4 +133,30 @@ import * as monaco from "monaco-editor";
     fecthExample(exampleSelect.value);
   };
   fecthExample(exampleSelect.value);
+
+  dragBar.onmousedown = () => {
+    dragBar.classList.add("active");
+    document.body.style.userSelect = "none";
+    document.body.style.cursor = "col-resize";
+
+    const mouseMoveListener = (e: MouseEvent) => {
+      const leftWidth =
+        e.pageX - editorsContainer.getBoundingClientRect().left - 5;
+      const rightWidth =
+        editorsContainer.getBoundingClientRect().right - e.pageX - 5;
+      hykeContainer.style.width = `${leftWidth}px`;
+      tsContainer.style.width = `${rightWidth}px`;
+    };
+
+    const mouseUpListener = () => {
+      dragBar.classList.remove("active");
+      document.body.style.userSelect = "auto";
+      document.body.style.cursor = "inital";
+      document.removeEventListener("mousemove", mouseMoveListener);
+      document.removeEventListener("mouseup", mouseUpListener);
+    };
+
+    document.addEventListener("mousemove", mouseMoveListener);
+    document.addEventListener("mouseup", mouseUpListener);
+  };
 })();

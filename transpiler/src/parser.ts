@@ -260,8 +260,11 @@ export default class Parser {
 
         nextTok = this.lexer.nextToken();
         if (nextTok.kind === "COMMA") expr = this.tupleLit(openingTok, expr);
-        else this.mustMatch(nextTok, "RPAR");
-
+        else {
+          this.mustMatch(nextTok, "RPAR");
+          expr.endLine = nextTok.line;
+          expr.endColumn = nextTok.column;
+        }
         break;
       default:
         throw this.unexpected(nextTok);
@@ -396,8 +399,11 @@ export default class Parser {
 
         nextTok = this.lexer.nextToken();
         if (nextTok.kind === "COMMA") expr = this.tupleLit(openingTok, expr);
-        else this.mustMatch(nextTok, "RPAR");
-
+        else {
+          this.mustMatch(nextTok, "RPAR");
+          expr.endLine = nextTok.line;
+          expr.endColumn = nextTok.column;
+        }
         break;
       default:
         throw this.unexpected(nextTok);

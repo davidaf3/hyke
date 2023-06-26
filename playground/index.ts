@@ -139,6 +139,9 @@ import * as monaco from "monaco-editor";
         e.pageX - editorsContainer.getBoundingClientRect().left - 5;
       const rightWidth =
         editorsContainer.getBoundingClientRect().right - e.pageX - 5;
+
+      if (leftWidth < 360 || rightWidth < 360) return;
+
       hykeContainer.style.width = `${leftWidth}px`;
       tsContainer.style.width = `${rightWidth}px`;
     };
@@ -146,7 +149,7 @@ import * as monaco from "monaco-editor";
     const mouseUpListener = () => {
       dragBar.classList.remove("active");
       document.body.style.userSelect = "auto";
-      document.body.style.cursor = "inital";
+      document.body.style.cursor = "default";
       document.removeEventListener("mousemove", mouseMoveListener);
       document.removeEventListener("mouseup", mouseUpListener);
     };

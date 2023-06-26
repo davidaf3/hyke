@@ -5,6 +5,7 @@ body {
 #editorsContainer {
   display: flex;
   height: 100ch;
+  border-bottom: solid rgb(196, 196, 196) 1px;
 }
 
 #editorsContainer > div {
@@ -47,9 +48,16 @@ body {
 #editorsContainer > div:nth-child(2n - 1) > ul {
   display: flex;
   list-style: none;
-  margin-right: -2px;
   align-items: center;
   gap: 2rem;
+}
+
+#editorsContainer > div:nth-child(1) > ul {
+  margin-right: -2px;
+}
+
+#editorsContainer > div:nth-child(3) > ul {
+  margin-left: -7px;
 }
 
 #editorsContainer > div:nth-child(2n - 1) > ul h4 {
@@ -76,7 +84,7 @@ textarea {
     height: 200ch;
   }
 
-  #editorsContainer > div:nth-child(2):hover {
+  #editorsContainer > div:nth-child(2) {
     display: none;
   }
   

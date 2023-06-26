@@ -210,7 +210,13 @@ export default class Lexer {
       return ["SYMBOL", value];
     }
 
-    throw new LexerError("No matching token", this.line, this.column);
+    throw new LexerError(
+      "No matching token",
+      this.line,
+      this.column,
+      this.line,
+      this.column
+    );
   }
 
   private matchWord(word: string): boolean {

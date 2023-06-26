@@ -1,12 +1,12 @@
-import { readFileSync, writeFileSync } from "fs";
 import { CodeGenVisitor } from "./codegen";
+import { TranspilerError } from "./error";
 import Lexer from "./lexer";
 import Parser from "./parser";
 import { IdentificationVisitor, TypeCheckingVisitor } from "./semantic";
 
 export function compile(
   source: string,
-  errorHandler: (error: Error) => void
+  errorHandler: (error: TranspilerError) => void
 ): string {
   const lexer = new Lexer(source);
   const parser = new Parser(lexer);
@@ -23,7 +23,11 @@ export function compile(
     typeCheckingVisitor.visitProgram(program, null);
     return codeGenVisitor.visitProgram(program);
   } catch (e) {
-    errorHandler(e as Error);
-    return "";
+    if (e instanceof TranspilerError) {
+      errorHandler(e);
+      return "";
+    }
+
+    throw e;
   }
 }

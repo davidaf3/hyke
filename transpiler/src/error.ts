@@ -1,5 +1,11 @@
-class TranspilerError extends Error {
-  constructor(message: string, line: number, column: number) {
+export class TranspilerError extends Error {
+  constructor(
+    message: string,
+    public line: number,
+    public column: number,
+    public endLine: number,
+    public endColumn: number
+  ) {
     super(`Error at line ${line}, column ${column}: ${message}`);
   }
 }

@@ -38,7 +38,9 @@ export class IdentificationVisitor extends AbstractVisitor<Context, void> {
             throw new NameError(
               `Parameter ${name} not declared`,
               param.line,
-              param.column
+              param.column,
+              param.endLine,
+              param.endColumn
             );
           }
 
@@ -48,7 +50,9 @@ export class IdentificationVisitor extends AbstractVisitor<Context, void> {
                 ", "
               )}`,
               param.line,
-              param.column
+              param.column,
+              param.endLine,
+              param.endColumn
             );
           }
         });
@@ -66,7 +70,9 @@ export class IdentificationVisitor extends AbstractVisitor<Context, void> {
       throw new NameError(
         `Function ${funcBody.name} not declared`,
         funcBody.line,
-        funcBody.column
+        funcBody.column,
+        funcBody.endLine,
+        funcBody.endColumn
       );
 
     funcBody.def = funcDef;
@@ -75,7 +81,9 @@ export class IdentificationVisitor extends AbstractVisitor<Context, void> {
       throw new NameError(
         `Function ${funcDef.name} has ${funcDef.paramNames.length} paramter(s), ${funcBody.params.length} defined`,
         funcBody.line,
-        funcBody.column
+        funcBody.column,
+        funcBody.endLine,
+        funcBody.endColumn
       );
     }
 
@@ -106,7 +114,9 @@ export class IdentificationVisitor extends AbstractVisitor<Context, void> {
         throw new NameError(
           `Renaming of parameter ${current}`,
           param.line,
-          param.column
+          param.column,
+          param.endLine,
+          param.endColumn
         );
       }
 
@@ -115,7 +125,9 @@ export class IdentificationVisitor extends AbstractVisitor<Context, void> {
           throw new NameError(
             `Parameter name ${name} already in use`,
             param.line,
-            param.column
+            param.column,
+            param.endLine,
+            param.endColumn
           );
         }
       });
@@ -162,7 +174,9 @@ export class IdentificationVisitor extends AbstractVisitor<Context, void> {
       throw new NameError(
         `Function ${funcCall.name} not declared`,
         funcCall.line,
-        funcCall.column
+        funcCall.column,
+        funcCall.endLine,
+        funcCall.endColumn
       );
     }
 
@@ -176,7 +190,9 @@ export class IdentificationVisitor extends AbstractVisitor<Context, void> {
       throw new NameError(
         `Function ${funcCall.name} has ${mandatoryParams} mandatory parameter(s), ${funcCall.args.length} provided`,
         funcCall.line,
-        funcCall.column
+        funcCall.column,
+        funcCall.endLine,
+        funcCall.endColumn
       );
     }
 
@@ -219,7 +235,9 @@ export class TypeCheckingVisitor extends AbstractVisitor<Type | null, void> {
         throw new TypeError(
           "Parameter default value must be constant",
           funcType.defaultVal.line,
-          funcType.defaultVal.column
+          funcType.defaultVal.column,
+          funcType.defaultVal.endLine,
+          funcType.defaultVal.endColumn
         );
       }
 
@@ -249,7 +267,9 @@ export class TypeCheckingVisitor extends AbstractVisitor<Type | null, void> {
           throw new TypeError(
             "Invalid type for list push, should be list",
             binOp.line,
-            binOp.column
+            binOp.column,
+            binOp.endLine,
+            binOp.endColumn
           );
         }
         binOp.left.accept(this, inferredType.params[0]);
@@ -267,7 +287,9 @@ export class TypeCheckingVisitor extends AbstractVisitor<Type | null, void> {
           throw new TypeError(
             `Expected ${inferredType}, found binary operation returning Nat`,
             binOp.line,
-            binOp.column
+            binOp.column,
+            binOp.endLine,
+            binOp.endColumn
           );
         }
         binOp.left.accept(this, inferredType);
@@ -280,7 +302,9 @@ export class TypeCheckingVisitor extends AbstractVisitor<Type | null, void> {
           throw new TypeError(
             `Expected ${inferredType}, found binary operation returning Bool`,
             binOp.line,
-            binOp.column
+            binOp.column,
+            binOp.endLine,
+            binOp.endColumn
           );
         }
         binOp.left.accept(this, new Type("Nat", []));
@@ -296,7 +320,9 @@ export class TypeCheckingVisitor extends AbstractVisitor<Type | null, void> {
       throw new TypeError(
         `Expected ${inferredType}, found natural literal`,
         natLit.line,
-        natLit.column
+        natLit.column,
+        natLit.endLine,
+        natLit.endColumn
       );
   }
 
@@ -307,7 +333,9 @@ export class TypeCheckingVisitor extends AbstractVisitor<Type | null, void> {
       throw new TypeError(
         `Expected ${inferredType}, found boolean literal`,
         boolLit.line,
-        boolLit.column
+        boolLit.column,
+        boolLit.endLine,
+        boolLit.endColumn
       );
   }
 
@@ -318,7 +346,9 @@ export class TypeCheckingVisitor extends AbstractVisitor<Type | null, void> {
       throw new TypeError(
         `Expected ${inferredType}, found list literal`,
         listLit.line,
-        listLit.column
+        listLit.column,
+        listLit.endLine,
+        listLit.endColumn
       );
 
     listLit.type = inferredType;
@@ -334,14 +364,18 @@ export class TypeCheckingVisitor extends AbstractVisitor<Type | null, void> {
       throw new TypeError(
         `Expected ${inferredType}, found tuple literal`,
         tupleLit.line,
-        tupleLit.column
+        tupleLit.column,
+        tupleLit.endLine,
+        tupleLit.endColumn
       );
 
     if (inferredType.params.length !== tupleLit.values.length)
       throw new TypeError(
         `Expected ${inferredType}, found ${tupleLit.values.length}-tuple literal`,
         tupleLit.line,
-        tupleLit.column
+        tupleLit.column,
+        tupleLit.endLine,
+        tupleLit.endColumn
       );
 
     tupleLit.type = inferredType;
@@ -358,7 +392,9 @@ export class TypeCheckingVisitor extends AbstractVisitor<Type | null, void> {
       throw new TypeError(
         `Expected ${inferredType}, found function call returning ${def.returnType}`,
         funcCall.line,
-        funcCall.column
+        funcCall.column,
+        funcCall.endLine,
+        funcCall.endColumn
       );
 
     funcCall.type = inferredType;
@@ -381,7 +417,9 @@ export class TypeCheckingVisitor extends AbstractVisitor<Type | null, void> {
       throw new TypeError(
         `Expected ${inferredType}, but symbol ${symbol.name} has type ${symbolType}`,
         symbol.line,
-        symbol.column
+        symbol.column,
+        symbol.endLine,
+        symbol.endColumn
       );
   }
 

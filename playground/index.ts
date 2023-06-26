@@ -1,4 +1,4 @@
-import { compile, run } from "hyke";
+import { TranspilerError, compile, run } from "hyke";
 import * as monaco from "monaco-editor";
 
 (function () {
@@ -27,19 +27,14 @@ import * as monaco from "monaco-editor";
     clearOutput();
   }
 
-  function compilationErrorHandler(error: Error) {
-    const matches = error.message.match(
-      /Error at line (\d+), column (\d+): (.*)/
-    )!;
-    const line = Number(matches[1]);
-    const column = Number(matches[2]);
+  function compilationErrorHandler(error: TranspilerError) {
     monaco.editor.setModelMarkers(hykeEditor.getModel()!, "hyke", [
       {
-        startLineNumber: line,
-        startColumn: column,
-        endLineNumber: line,
-        endColumn: column + 1,
-        message: matches[3],
+        startLineNumber: error.line,
+        startColumn: error.column,
+        endLineNumber: error.endLine,
+        endColumn: error.endColumn + 1,
+        message: error.message.replace(/^.*?: /, ""),
         severity: monaco.MarkerSeverity.Error,
       },
     ]);

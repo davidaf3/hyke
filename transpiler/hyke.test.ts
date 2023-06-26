@@ -24,7 +24,7 @@ exampleOutputs.forEach((expected, file) => {
     const source = readFileSync(`../examples/${file}`, {
       encoding: "utf-8",
     });
-    const outCode = compile(source, (e: Error) => {
+    const outCode = compile(source, (e) => {
       throw e;
     });
     expect(run(outCode)).toBe(expected);

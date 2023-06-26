@@ -1,7 +1,12 @@
 import { Visitor } from "./visitor";
 
 abstract class ASTNode {
-  constructor(public line: number, public column: number) {}
+  constructor(
+    public line: number,
+    public column: number,
+    public endLine: number,
+    public endColumn: number
+  ) {}
 
   abstract accept<P, R>(visitor: Visitor<P, R>, param: P): R;
 }
@@ -11,9 +16,11 @@ export class Program extends ASTNode {
     public funcDefs: FuncDef[],
     public funcBodies: FuncBody[],
     line: number,
-    column: number
+    column: number,
+    endLine: number,
+    endColumn: number
   ) {
-    super(line, column);
+    super(line, column, endLine, endColumn);
   }
 
   accept<P, R>(visitor: Visitor<P, R>, param: P): R {
@@ -33,9 +40,11 @@ export class FuncDef extends ASTNode {
     public paramNames: string[],
     public value: Expr | null,
     line: number,
-    column: number
+    column: number,
+    endLine: number,
+    endColumn: number
   ) {
-    super(line, column);
+    super(line, column, endLine, endColumn);
   }
 
   accept<P, R>(visitor: Visitor<P, R>, param: P): R {
@@ -48,9 +57,11 @@ export class FuncType extends ASTNode {
     public type: Type,
     public defaultVal: Expr | null,
     line: number,
-    column: number
+    column: number,
+    endLine: number,
+    endColumn: number
   ) {
-    super(line, column);
+    super(line, column, endLine, endColumn);
   }
 
   accept<P, R>(visitor: Visitor<P, R>, param: P): R {
@@ -63,9 +74,11 @@ export class Type extends ASTNode {
     public name: string,
     public params: Type[],
     line: number = 0,
-    column: number = 0
+    column: number = 0,
+    endLine: number = 0,
+    endColumn: number = 0
   ) {
-    super(line, column);
+    super(line, column, endLine, endColumn);
   }
 
   accept<P, R>(visitor: Visitor<P, R>, param: P): R {
@@ -103,9 +116,11 @@ export class FuncBody extends ASTNode {
     public params: (Pattern | Symbol)[],
     public body: Expr,
     line: number,
-    column: number
+    column: number,
+    endLine: number,
+    endColumn: number
   ) {
-    super(line, column);
+    super(line, column, endLine, endColumn);
   }
 
   accept<P, R>(visitor: Visitor<P, R>, param: P): R {
@@ -117,9 +132,11 @@ export class Pattern extends ASTNode {
   constructor(
     public content: NatLit | ListLit | BoolLit | Expr,
     line: number,
-    column: number
+    column: number,
+    endLine: number,
+    endColumn: number
   ) {
-    super(line, column);
+    super(line, column, endLine, endColumn);
   }
 
   accept<P, R>(visitor: Visitor<P, R>, param: P): R {
@@ -134,8 +151,14 @@ export class Symbol extends ASTNode {
   public scope: FuncDef | null = null;
   public insidePattern = false;
 
-  constructor(public name: string, line: number, column: number) {
-    super(line, column);
+  constructor(
+    public name: string,
+    line: number,
+    column: number,
+    endLine: number,
+    endColumn: number
+  ) {
+    super(line, column, endLine, endColumn);
   }
 
   accept<P, R>(visitor: Visitor<P, R>, param: P): R {
@@ -159,9 +182,11 @@ export class BinOp extends ASTNode {
     public left: Expr,
     public right: Expr,
     line: number,
-    column: number
+    column: number,
+    endLine: number,
+    endColumn: number
   ) {
-    super(line, column);
+    super(line, column, endLine, endColumn);
   }
 
   accept<P, R>(visitor: Visitor<P, R>, param: P): R {
@@ -181,9 +206,11 @@ export class FuncCall extends ASTNode {
     public name: string,
     public args: Expr[],
     line: number,
-    column: number
+    column: number,
+    endLine: number,
+    endColumn: number
   ) {
-    super(line, column);
+    super(line, column, endLine, endColumn);
   }
 
   accept<P, R>(visitor: Visitor<P, R>, param: P): R {
@@ -198,8 +225,14 @@ export class FuncCall extends ASTNode {
 export class ListLit extends ASTNode {
   public type: Type | null = null;
 
-  constructor(public values: Expr[], line: number, column: number) {
-    super(line, column);
+  constructor(
+    public values: Expr[],
+    line: number,
+    column: number,
+    endLine: number,
+    endColumn: number
+  ) {
+    super(line, column, endLine, endColumn);
   }
 
   accept<P, R>(visitor: Visitor<P, R>, param: P): R {
@@ -214,8 +247,14 @@ export class ListLit extends ASTNode {
 export class TupleLit extends ASTNode {
   public type: Type | null = null;
 
-  constructor(public values: Expr[], line: number, column: number) {
-    super(line, column);
+  constructor(
+    public values: Expr[],
+    line: number,
+    column: number,
+    endLine: number,
+    endColumn: number
+  ) {
+    super(line, column, endLine, endColumn);
   }
 
   accept<P, R>(visitor: Visitor<P, R>, param: P): R {
@@ -228,10 +267,23 @@ export class TupleLit extends ASTNode {
 }
 
 export class NatLit extends ASTNode {
-  public type = new Type("Nat", [], this.line, this.column);
+  public type = new Type(
+    "Nat",
+    [],
+    this.line,
+    this.column,
+    this.endLine,
+    this.endColumn
+  );
 
-  constructor(public value: number, line: number, column: number) {
-    super(line, column);
+  constructor(
+    public value: number,
+    line: number,
+    column: number,
+    endLine: number,
+    endColumn: number
+  ) {
+    super(line, column, endLine, endColumn);
   }
 
   accept<P, R>(visitor: Visitor<P, R>, param: P): R {
@@ -244,10 +296,23 @@ export class NatLit extends ASTNode {
 }
 
 export class BoolLit extends ASTNode {
-  public type = new Type("Bool", [], this.line, this.column);
+  public type = new Type(
+    "Bool",
+    [],
+    this.line,
+    this.column,
+    this.endLine,
+    this.endColumn
+  );
 
-  constructor(public value: boolean, line: number, column: number) {
-    super(line, column);
+  constructor(
+    public value: boolean,
+    line: number,
+    column: number,
+    endLine: number,
+    endColumn: number
+  ) {
+    super(line, column, endLine, endColumn);
   }
 
   accept<P, R>(visitor: Visitor<P, R>, param: P): R {

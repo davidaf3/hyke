@@ -32,7 +32,7 @@ jobs:
         run: npm run build
       - name: Install playground dependencies
         working-directory: playground
-        run: npm ci
+        run: npm ci --include=dev
       - name: Build playground
         working-directory: playground
         run: npm run build

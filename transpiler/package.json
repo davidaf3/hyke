@@ -9,7 +9,7 @@
   "main": "./dist/index.js",
   "bin": "./dist/cli.js",
   "scripts": {
-    "build": "python -c \"import shutil; shutil.rmtree('.\\dist')\" && tsc",
+    "build": "python -c \"import shutil; shutil.rmtree('.\\dist', ignore_errors=True)\" && tsc",
     "test": "jest"
   },
   "devDependencies": {

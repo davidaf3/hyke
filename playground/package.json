@@ -11,7 +11,11 @@
     "monaco-editor": "^0.39.0"
   },
   "devDependencies": {
-    "parcel": "^2.9.2",
-    "process": "^0.11.10"
+    "parcel": "^2.9.2"
+  },
+  "alias": {
+    "process": {
+			"global": "undefined"
+		}
   }
 }

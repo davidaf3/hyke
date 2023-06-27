@@ -36,7 +36,7 @@ jobs:
         run: npm ci
       - name: Build playground
         working-directory: playground
-        run: npm run build
+        run: npm run build -- --public-url '.'
       - name: Upload playground
         uses: actions/upload-pages-artifact@v1
         with:

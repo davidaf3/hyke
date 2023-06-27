@@ -54,7 +54,7 @@ import * as monaco from "monaco-editor";
     "output"
   ) as HTMLTextAreaElement;
 
-  this.MonacoEnvironment = {
+  window.MonacoEnvironment = {
     getWorker: function (_, label: string) {
       if (label === "typescript") {
         return new Worker(
@@ -80,6 +80,7 @@ import * as monaco from "monaco-editor";
         }
       );
     },
+    createTrustedTypesPolicy: undefined!,
   };
 
   monaco.languages.register({ id: "hyke" });

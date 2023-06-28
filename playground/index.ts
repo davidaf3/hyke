@@ -1,43 +1,33 @@
-import { TranspilerError, compile, run } from "hyke";
-import * as monaco from "monaco-editor";
+import { compile as doCompile, run } from "hyke";
+import { createDragbar } from "./src/dragbar";
+import {
+  clearTranspilerErrors,
+  createEditor,
+  getLineHeight,
+  setUpMonaco,
+  showTranspilerError,
+} from "./src/editor";
+import { fetchExample } from "./src/example";
 
 (function () {
-  function doCompile() {
-    clearOutput();
-    const compiled = compile(hykeEditor.getValue(), compilationErrorHandler);
-    tsEditor.setValue(compiled);
-    // Skip prelude (52 lines)
-    tsEditor.setScrollTop(
-      tsEditor.getOption(monaco.editor.EditorOption.lineHeight) * 52
-    );
-  }
-
-  function clearOutput() {
-    monaco.editor.removeAllMarkers("hyke");
+  function compile() {
+    clearTranspilerErrors();
     outputTextArea.value = "";
-  }
-
-  async function fecthExample(filename: string) {
-    const response = await fetch(
-      `https://raw.githubusercontent.com/davidaf3/hyke/master/examples/${filename}`
+    const compiled = doCompile(hykeEditor.getValue(), (e) =>
+      showTranspilerError(e, hykeEditor)
     );
-    const source = await response.text();
-    hykeEditor.setValue(source);
-    doCompile();
-    clearOutput();
+
+    if (compiled != "") {
+      tsEditor.setValue(compiled);
+      // Skip prelude (52 lines)
+      tsEditor.setScrollTop(getLineHeight(tsEditor) * 52);
+    }
   }
 
-  function compilationErrorHandler(error: TranspilerError) {
-    monaco.editor.setModelMarkers(hykeEditor.getModel()!, "hyke", [
-      {
-        startLineNumber: error.line,
-        startColumn: error.column,
-        endLineNumber: error.endLine,
-        endColumn: error.endColumn + 1,
-        message: error.message.replace(/^.*?: /, ""),
-        severity: monaco.MarkerSeverity.Error,
-      },
-    ]);
+  async function selectExample(filename: string) {
+    const source = await fetchExample(filename);
+    hykeEditor.setValue(source);
+    compile();
   }
 
   const editorsContainer = document.getElementById(
@@ -45,7 +35,6 @@ import * as monaco from "monaco-editor";
   ) as HTMLElement;
   const hykeContainer = document.getElementById("hykeContainer") as HTMLElement;
   const tsContainer = document.getElementById("tsContainer") as HTMLElement;
-  const dragBar = document.getElementById("dragBar") as HTMLElement;
   const runButton = document.getElementById("runButton") as HTMLButtonElement;
   const exampleSelect = document.getElementById(
     "exampleSelect"
@@ -54,108 +43,30 @@ import * as monaco from "monaco-editor";
     "output"
   ) as HTMLTextAreaElement;
 
-  window.MonacoEnvironment = {
-    getWorker: function (_, label: string) {
-      if (label === "typescript") {
-        return new Worker(
-          new URL(
-            "./node_modules/monaco-editor/esm/vs/language/typescript/ts.worker.js",
-            import.meta.url
-          ),
-          {
-            name: label,
-            type: "module",
-          }
-        );
-      }
-
-      return new Worker(
-        new URL(
-          "./node_modules/monaco-editor/esm/vs/editor/editor.worker.js",
-          import.meta.url
-        ),
-        {
-          name: label,
-          type: "module",
-        }
-      );
-    },
-    createTrustedTypesPolicy: undefined!,
-  };
-
-  monaco.languages.register({ id: "hyke" });
-  monaco.languages.setMonarchTokensProvider("hyke", {
-    tokenizer: {
-      root: [
-        [/::|->|True|False/, "keyword"],
-        [/Nat|Bool/, "type"],
-        [/(\+|:|-|\*|<|<=|==|!!)/, "operator"],
-        [/[0-9]+/, "number"],
-        [/\(|\)/, "delimiter.parenthesis"],
-        [/\[\]/, "delimiter.array"],
-        [/\[\]/, "delimiter.array"],
-      ],
-    },
-  });
-
-  const hykeEditor = monaco.editor.create(
+  setUpMonaco();
+  const hykeEditor = createEditor(
     document.getElementById("hykeEditor")!,
-    {
-      language: "hyke",
-      automaticLayout: true,
-      minimap: {
-        enabled: false,
-      },
-    }
+    "hyke"
   );
-  const tsEditor = monaco.editor.create(document.getElementById("tsEditor")!, {
-    language: "typescript",
-    automaticLayout: true,
-    minimap: {
-      enabled: false,
-    },
-  });
-
-  hykeEditor.onDidChangeModelContent(() => {
-    doCompile();
-  });
+  const tsEditor = createEditor(
+    document.getElementById("tsEditor")!,
+    "typescript"
+  );
+  hykeEditor.onDidChangeModelContent(compile);
 
   runButton.onclick = () => {
-    clearOutput();
     outputTextArea.value = run(tsEditor.getValue());
   };
 
   exampleSelect.onchange = () => {
-    fecthExample(exampleSelect.value);
+    selectExample(exampleSelect.value);
   };
-  fecthExample(exampleSelect.value);
+  selectExample(exampleSelect.value);
 
-  dragBar.onmousedown = () => {
-    dragBar.classList.add("active");
-    document.body.style.userSelect = "none";
-    document.body.style.cursor = "col-resize";
-
-    const mouseMoveListener = (e: MouseEvent) => {
-      const leftWidth =
-        e.pageX - editorsContainer.getBoundingClientRect().left - 5;
-      const rightWidth =
-        editorsContainer.getBoundingClientRect().right - e.pageX - 5;
-
-      if (leftWidth < 360 || rightWidth < 360) return;
-
-      hykeContainer.style.width = `${leftWidth}px`;
-      tsContainer.style.width = `${rightWidth}px`;
-    };
-
-    const mouseUpListener = () => {
-      dragBar.classList.remove("active");
-      document.body.style.userSelect = "auto";
-      document.body.style.cursor = "default";
-      document.removeEventListener("mousemove", mouseMoveListener);
-      document.removeEventListener("mouseup", mouseUpListener);
-    };
-
-    document.addEventListener("mousemove", mouseMoveListener);
-    document.addEventListener("mouseup", mouseUpListener);
-  };
+  createDragbar(
+    document.getElementById("dragBar"),
+    editorsContainer,
+    hykeContainer,
+    tsContainer
+  );
 })();

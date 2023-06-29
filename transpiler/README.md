@@ -2,6 +2,11 @@
 
 The hyke transpailer transforms hyke programs into TypeScript.
 
+## Installation
+```bash
+npm install hyke
+```
+
 ## Command line usage
 
 To transpile a source file run the following command:

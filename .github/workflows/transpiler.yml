@@ -1,0 +1,40 @@
+name: Build, test and publish the transpiler
+on:
+  push:
+    branches: [master]
+    paths:
+      - transpiler/**
+      - .github/workflows/transpiler.yml
+
+jobs:
+  build_test_publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: "16"
+          registry-url: "https://registry.npmjs.org"
+      - name: Install transpiler dependencies
+        working-directory: transpiler
+        run: npm ci
+      - name: Build transpiler
+        working-directory: transpiler
+        run: npm run build
+      - name: Test transpiler
+        working-directory: transpiler
+        run: npm test
+      - name: Get publised version and package.json
+        id: get_metadata
+        working-directory: transpiler
+        run: |
+          echo "PUBLISHED_VERSION=$(npm show hyke version)" >> "$GITHUB_OUTPUT"
+          echo "PACKAGE_JSON_VERSION=$(jq -r .version package.json)" >> "$GITHUB_OUTPUT"
+      - name: Publish transpiler
+        if: steps.get_metadata.outputs.PUBLISHED_VERSION != steps.get_metadata.outputs.PACKAGE_JSON_VERSION
+        working-directory: transpiler
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

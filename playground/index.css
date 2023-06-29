@@ -1,5 +1,9 @@
 body {
   font-family: system-ui, sans-serif;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  height: 100vh;
 }
 
 #editorsContainer {
@@ -49,7 +53,7 @@ body {
   display: flex;
   list-style: none;
   align-items: center;
-  gap: 2rem;
+  gap: 1.5rem;
 }
 
 #editorsContainer > div:nth-child(1) > ul {
@@ -72,10 +76,44 @@ label {
   margin-right: .5rem;
 }
 
-textarea {
+.output-container {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.output-container > h5 {
+  margin: 1.5rem 1rem .75rem;
+}
+
+.output-container > textarea {
   width: 100%;
-  height: 20ch;
-  margin-bottom: 2rem;
+  min-height: 20ch;
+  resize: none;
+  box-sizing: border-box;
+  flex-grow: 1;
+  border: none;
+  border-top: solid rgb(196, 196, 196) 1px;
+  padding: 1rem;
+}
+
+button {
+  padding: .4rem 1rem;
+  border-radius: 0.5rem;
+  border: none;
+  color: white;
+  background-color: rgb(26 86 219);
+}
+
+button:hover {
+  cursor: pointer;
+  background-color: rgb(30 66 159);
+}
+
+select {
+  padding: .4rem;
+  border-radius: 0.5rem;
+  border: solid rgb(196, 196, 196) 1px;
 }
 
 @media (max-width: 768px) {
@@ -91,5 +129,13 @@ textarea {
   #editorsContainer > div:nth-child(2n - 1) {
     width: 100%;
     height: 50%;
+  }
+
+  .output-container > textarea {
+    min-height: 10ch;
+  }
+
+  label {
+    display: none;
   }
 }

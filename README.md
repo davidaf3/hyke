@@ -1,37 +1,35 @@
 # 🗻 hyke
-A programming language that runs on the TypeScript type system.
-
-## Installation
-Make sure you have Node.js and NPM installed. Then, clone this repo and run the following commands:
-
-```bash
-cd transpiler
-npm i
-npm run build
-npm i . -g
-```
-
-To check the installation was successful, run `hyke`. You should get the following output:
+hyke is a programming language that runs on TypeScript's type system. That means that you can write this:
 
 ```
-Usage: hyke command filename
+fib :: Nat -> Nat
+fib 0 = 0
+fib 1 = 1
+fib n = fib (n - 1) + fib (n - 2)
 ```
 
-## Running
-To compile a source file run the following command:
+And hyke's transpiler will transform it into this TypeScript code:
 
-```bash
-hyke c <filepath>
+```ts
+type fib<n extends Nat> =
+	[n] extends [0] ? 0 :
+	[n] extends [S<0>] ? S<0> :
+	Addition<fib<Substraction<n, S<0>>>, fib<Substraction<n, S<S<0>>>>>;
 ```
 
-If the compiler didn't find any errors, a file called `out.ts` will have been generated in the current folder.
-To run this file, use the following command:
+That TypeScript's compiler will convert to this JavaScript code:
 
-```bash
-hyke r out.ts
+```js
 ```
 
-The output of the program will be printed to standard output.
+That's right, 0 bytes. So the next time you are building a highly scalable, microservices-based, web-scale ready, résumé-driven system,
+consider using hyke. It even allows you to write [programs that are able to solve the n-queens puzzle](https://github.com/davidaf3/hyke/blob/master/examples/nqueens.hyke)
+(which seems to be [the](https://aphyr.com/posts/342-typing-the-technical-interview) [benchmark](https://www.richard-towers.com/2023/03/11/typescripting-the-technical-interview.html)
+for this kind of things).
+
+## Try it
+You can try hyke from the comfort of your web browser at [davidaf3.github.io/hyke](http://davidaf3.github.io/hyke). You can also use the
+[npm package](https://github.com/davidaf3/hyke/blob/master/README.md) to transpile and run hyke programs from the command line or from JavaScript.
 
 ## Language specification
 A hyke program consists of one or more function definitions. Every program must define a `main` function with no parameters,

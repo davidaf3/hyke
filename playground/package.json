@@ -7,7 +7,7 @@
     "build": "python -c \"import shutil; shutil.rmtree('.\\dist', ignore_errors=True)\" && parcel build index.html"
   },
   "dependencies": {
-    "hyke": "file:../transpiler",
+    "hyke": "^1.0.1",
     "monaco-editor": "^0.39.0"
   },
   "devDependencies": {
@@ -15,7 +15,7 @@
   },
   "alias": {
     "process": {
-			"global": "undefined"
-		}
+      "global": "undefined"
+    }
   }
 }
